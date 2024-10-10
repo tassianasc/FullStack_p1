@@ -1,0 +1,169 @@
+<!-- Página de Criação de Sala -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Sala</title>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .room-container {
+      background-color: white;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    input[type="submit"] {
+      background-color: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #555;
+    }
+
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .back-link {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .back-link a {
+      color: #666;
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="room-container">
+    <h2>Criar Sala</h2>
+    <form id="createRoomForm">
+      <div class="form-group">
+        <label for="name">Nome da Sala</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Descrição</label>
+        <input type="text" id="description" name="description" required>
+      </div>
+      <div class="form-group">
+        <label for="capacity">Capacidade</label>
+        <input type="number" id="capacity" name="capacity" required min="1">
+      </div>
+      <input type="submit" value="Criar Sala">
+    </form>
+
+    <div id="error-message" class="error-message"></div>
+
+    <!-- Link para voltar à página anterior -->
+    <div class="back-link">
+      <a href="/rooms.html">Voltar à Lista de Salas</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('createRoomForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const description = document.getElementById('description').value;
+      const capacity = document.getElementById('capacity').value;
+
+      const data = {
+        name: name,
+        description: description,
+        capacity: parseInt(capacity) // Certifique-se de que a capacidade seja um número
+      };
+
+      // Recuperar o token do armazenamento local
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        // Se não houver token, redireciona para a página de login
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/api/rooms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Incluindo o token no cabeçalho
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Sala criada com sucesso!');
+          // Redireciona o usuário para a lista de salas após a criação
+          window.location.href = '/rooms.html'; // Certifique-se de que o caminho está correto
+        } else {
+          const errorData = await response.json();
+          document.getElementById('error-message').textContent = errorData.message;
+        }
+      } catch (error) {
+        document.getElementById('error-message').textContent = 'Erro ao criar sala.';
+        console.error('Erro ao conectar ao servidor:', error);
+      }
+    });
+  </script>
+</body>
+</html>

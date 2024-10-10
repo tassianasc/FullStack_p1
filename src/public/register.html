@@ -1,0 +1,159 @@
+<!--Página de Cadastro -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Usuário</title>
+</head>
+<body>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 40px;
+      width: 100%;
+      max-width: 320px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="submit"] {
+      width: 100%; /* Faz o botão ocupar o mesmo espaço dos campos */
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    input[type="submit"] {
+      background-color: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #555;
+    }
+
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .back-link {
+      margin-top: 15px;
+      font-size: 14px; /* Texto discreto */
+      text-align: center;
+    }
+
+    .back-link a {
+      color: #666; /* Cor discreta */
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <div class="login-container">
+    <h2>Cadastro de Usuário</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="name">Nome</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <input type="submit" value="Cadastrar">
+    </form>
+    
+    <div id="error-message" class="error-message"></div>
+    
+    <!-- Link para voltar à página inicial -->
+    <div class="back-link">
+      <a href="/index.html">Voltar à Página Inicial</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const data = {
+        name: name,
+        email: email,
+        password: password
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/users/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Cadastro concluído!');
+          // Redireciona o usuário para a página de login após o cadastro
+          window.location.href = '/index.html'; // Certifique-se de que o caminho está correto
+        } else {
+          const errorData = await response.json();
+          document.getElementById('error-message').textContent = errorData.message;
+        }
+      } catch (error) {
+        document.getElementById('error-message').textContent = 'Erro ao cadastrar usuário.';
+      }
+    });
+  </script>
+</body>
+</html>

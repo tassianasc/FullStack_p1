@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Salas</title>
+</head>
+<body>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .rooms-container {
+      background-color: white;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+      margin-top: 65px; /* Ajuste para colocar o título mais abaixo */
+    }
+
+    .room-list {
+      list-style-type: none;
+      padding: 0;
+      width: 100%;
+    }
+
+    .room-item {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .room-item a {
+      text-decoration: none;
+      color: #333;
+    }
+
+    .enter-button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .enter-button:hover {
+      background-color: #0056b3;
+    }
+
+    .create-room-link {
+      display: block;
+      text-align: right;
+      margin-top: 20px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #007BFF;
+      cursor: pointer;
+    }
+
+    .create-room-link:hover {
+      text-decoration: underline;
+    }
+
+    .logout-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .logout-button:hover {
+      background-color: #c82333;
+    }
+  </style>
+
+  <div class="rooms-container">
+    <h2>Salas Disponíveis</h2>
+    <ul id="roomList" class="room-list">
+      <!-- As salas serão carregadas aqui -->
+    </ul>
+    <!-- Link para criar sala -->
+    <a href="/create_room.html" class="create-room-link">+ Criar Nova Sala</a> <!-- Adiciona o link para criar nova sala -->
+    <button id="logoutButton" class="logout-button">Sair</button> <!-- Adicionado botão de sair -->
+  </div>
+
+  <script>
+    async function loadRooms() {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        // Redireciona para a página de login se o token não existir
+        window.location.href = '/index.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/rooms', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const rooms = await response.json();
+          const roomList = document.getElementById('roomList');
+          roomList.innerHTML = '';
+
+          rooms.forEach(room => {
+            const li = document.createElement('li');
+            li.className = 'room-item';
+            li.innerHTML = `
+              <span>${room.name}</span>
+              <a href="/chat.html?roomId=${room._id}">
+                <button class="enter-button">Entrar</button>
+              </a>
+            `;
+            roomList.appendChild(li);
+          });
+        } else {
+          console.error('Erro ao carregar as salas');
+        }
+      } catch (error) {
+        console.error('Erro ao conectar ao servidor:', error);
+      }
+    }
+
+    // Logoff
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token'); // Remove o token do localStorage
+      window.location.href = '/'; // Redireciona para a página de login
+    });
+
+    // Carrega as salas ao carregar a página
+    window.onload = loadRooms;
+  </script>
+</body>
+</html>

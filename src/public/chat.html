@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      flex-grow: 1;
+    }
+
+    .chat-title {
+      color: #333;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+
+    .sent {
+      background-color: #d4edda;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .received {
+      background-color: #f0f0f0;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    /* Link para voltar à página rooms */
+    .back-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back-link a {
+      text-decoration: none;
+      color: #007BFF;
+      font-size: 14px;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+    <div class="chat-container">
+        <h1 class="chat-title">Sala de Reunião</h1>
+        <form id="chat-form" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off" placeholder="Digite sua mensagem..."/>
+            <button type="submit">Enviar</button>
+        </form>
+        <ul id='messages'></ul>
+    </div>
+
+    <!-- Link para voltar à página rooms.html -->
+    <div class="back-link">
+        <a href="/rooms.html">Voltar à página de Salas</a>
+    </div>
+
+    <!-- Importando o Socket.io no front-end -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // Verifica se o token existe no localStorage
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        // Redireciona para a página de login se o token não existir
+        window.location.href = '/index.html';
+      }
+
+      // Inicia a conexão com Socket.io e envia o token para autenticação
+      const socket = io({
+        auth: {
+          token: token // Envia o token com a conexão via Socket.io
+        }
+      });
+
+      // Enviar mensagem para o servidor
+      function sendMessage(event) {
+        event.preventDefault();
+        const input = document.getElementById('messageText');
+        const message = input.value;
+
+        if (message.trim() !== '') {
+          // Envia a mensagem ao servidor via Socket.io
+          socket.emit('chat-message', message);
+
+          // Exibe a mensagem no front-end como enviada pelo usuário
+          displayMessage('Você', message, 'sent');
+          input.value = ''; // Limpa o campo de entrada
+        }
+      }
+
+      // Exibir mensagem no front-end
+      function displayMessage(sender, message, type) {
+        const messagesList = document.getElementById('messages');
+        const messageElement = document.createElement('li');
+
+        messageElement.textContent = `${sender}: ${message}`;
+        messageElement.classList.add(type); // Adiciona a classe 'sent' ou 'received'
+
+        messagesList.appendChild(messageElement);
+        messagesList.scrollTop = messagesList.scrollHeight; // Rola automaticamente para a última mensagem
+      }
+
+      // Escutar mensagens recebidas do servidor
+      socket.on('chat-message', (data) => {
+        displayMessage('Outro', data.message, 'received');
+      });
+
+      // Mostrar mensagem de desconexão
+      socket.on('user-disconnected', (userName) => {
+        displayMessage('Sistema', `${userName} desconectou...`, 'received');
+      });
+    </script>
+</body>
+</html>
