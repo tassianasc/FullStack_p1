@@ -1,4 +1,5 @@
 DESCRIÇÃO DO PROJETO: 
+
 Back-end
 Estrutura do Servidor:
 
@@ -34,4 +35,8 @@ O chat usa Socket.io para se comunicar com o servidor, enviando e recebendo mens
 Experiência do Usuário:
 
 Os usuários podem acessar a interface do chat, enviar mensagens e ver mensagens recebidas em tempo real de outros usuários conectados.
-As salas de chat são gerenciadas no back-end, e os usuários podem interagir com elas por meio da interface.
+As salas de chat são gerenciadas no back-end, e os usuários podem interagir com elas por meio da interface.  
+
+
+https://github.com/user-attachments/assets/22eaf84c-18ac-476a-9176-e1404d588789
+
